@@ -2,43 +2,70 @@ import React from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { Container, H1, Image, ContainerItems, InputLabel, Input, Button} from './styles'
-import Burguer from '../../assets users/burger 1.png'
+import UsersA from '../../assets users/Users.svg'
 import { useState, useRef} from 'react';
 function App() {
 
-  const [users, setUsers] = useState([]);
-  const inputName = useRef()
-  const inputAge = useRef()
-  const history = useHistory()
+   const [users, setUsers] = useState([]);
+  const inputName = useRef();
+  const inputEmail = useRef(); 
+  const inputPassword = useRef(); 
+  const history = useHistory();
 
   async function addNewUser() {
+    const email = inputEmail.current.value;
+    const password = inputPassword.current.value;
 
-     const { data: newUser } = await axios.post("http://localhost:3001/users", { 
-    name: inputName.current.value, 
-    age: inputAge.current.value, 
-      });
-     
-   setUsers([...users,newUser])
+    if (!isValidEmail(email)) {
+      alert("Por favor, insira um email válido.");
+      return;
+    }
 
-      history.push('/usuarios')
+    if (password.length < 8) {
+      alert("A senha deve ter no mínimo 8 caracteres.");
+      return;
+    }
+    try {
+      const { data: newUser } = await axios.post(
+        "https://api-register-node-users.vercel.app/users",
+        {
+          name: inputName.current.value,
+          email: email,
+          password: password,
+        }
+      );
+
+      setUsers([...users, newUser]);
+      history.push("/usuarios");
+    } catch (error) {
+      console.error("Erro ao adicionar novo usuário:", error);
+    }
   }
+
+  function isValidEmail(email) {
+    return email.includes("@");
+  }
+
 
 
 
 
   return (
     <Container>
-      <Image alt="logo-imagem" src={Burguer} />
+      <Image alt="logo-imagem" src={UsersA} />
       <ContainerItems>
-        <H1>Faça seu Pedido!</H1>
+        <H1>  Cadastro de Usuários</H1>
 
-        <InputLabel>Nome do Cliente</InputLabel>
+        <InputLabel>Nome:</InputLabel>
         <Input ref={inputName} placeholder="Digite seu nome" />
 
-        <InputLabel>Pedido</InputLabel>
-        <Input ref={inputAge} placeholder="Escolha seu Pedido" />
+        <InputLabel>E-mail</InputLabel>
+        <Input ref={inputEmail} placeholder="Digite seu e-mail" />
 
-      <Button  onClick={addNewUser}>Novo Pedido</Button>
+        <InputLabel>Senha</InputLabel>
+        <Input  ref={inputPassword} placeholder="Digite sua senha" />
+
+      <Button  onClick={addNewUser}>Novo Cadastro</Button>
 
 
       </ContainerItems>
